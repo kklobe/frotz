@@ -1,8 +1,8 @@
 # Define your C compiler.  I recommend gcc if you have it.
 # MacOS users should use "cc" even though it's really "gcc".
 #
-CC = gcc
-#CC = cc
+#CC = gcc
+CC = cc
 
 # Define your optimization flags.  Most compilers understand -O and -O2,
 # Standard (note: Solaris on UltraSparc using gcc 2.8.x might not like this.)
@@ -16,7 +16,8 @@ OPTS = -O2
 # Define where you want Frotz installed.  Usually this is /usr/local
 PREFIX = /usr/local
 
-MAN_PREFIX = $(PREFIX)
+#MAN_PREFIX = $(PREFIX)
+MAN_PREFIX = $(PREFIX)/share
 #MAN_PREFIX = /usr/local/share
 
 CONFIG_DIR = $(PREFIX)/etc
