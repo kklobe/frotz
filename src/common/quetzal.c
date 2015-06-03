@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdio.h>
@@ -47,6 +47,12 @@
 
 #define get_c fgetc
 #define put_c fputc
+
+/*
+ * externs
+ */
+
+extern int os_storyfile_seek(FILE * fp, long offset, int whence);
 
 typedef unsigned long zlong;
 
@@ -125,11 +131,11 @@ static bool read_long (FILE *f, zlong *result)
     return TRUE;
 }
 
+
 /*
  * Restore a saved game using Quetzal format. Return 2 if OK, 0 if an error
  * occurred before any damage was done, -1 on a fatal error.
  */
-
 zword restore_quetzal (FILE *svf, FILE *stf)
 {
     zlong ifzslen, currlen, tmpl;
@@ -321,7 +327,7 @@ zword restore_quetzal (FILE *svf, FILE *stf)
 	    case ID_CMem:
 		if (!(progress & GOT_MEMORY))	/* Don't complain if two. */
 		{
-		    (void) fseek (stf, 0, SEEK_SET);
+		    (void) os_storyfile_seek (stf, 0, SEEK_SET);
 		    i=0;	/* Bytes written to data area. */
 		    for (; currlen > 0; --currlen)
 		    {
@@ -412,10 +418,10 @@ zword restore_quetzal (FILE *svf, FILE *stf)
     return (progress == GOT_ALL ? 2 : fatal);
 }
 
+
 /*
  * Save a game using Quetzal format. Return 1 if OK, 0 if failed.
  */
-
 zword save_quetzal (FILE *svf, FILE *stf)
 {
     zlong ifzslen = 0, cmemlen = 0, stkslen = 0;
@@ -442,7 +448,7 @@ zword save_quetzal (FILE *svf, FILE *stf)
     /* Write `CMem' chunk. */
     if ((cmempos = ftell (svf)) < 0)			return 0;
     if (!write_chnk (svf, ID_CMem, 0))			return 0;
-    (void) fseek (stf, 0, SEEK_SET);
+    (void) os_storyfile_seek (stf, 0, SEEK_SET);
     /* j holds current run length. */
     for (i=0, j=0, cmemlen=0; i < h_dynamic_size; ++i)
     {
@@ -539,7 +545,7 @@ zword save_quetzal (FILE *svf, FILE *stf)
 	    || !write_word (svf, nstk))			return 0;
 
 	/* Write the variables and eval stack. */
-	for (j=0, ++p; j<nvars+nstk; ++j, --p)
+	for (j=0, --p; j<nvars+nstk; ++j, --p)
 	    if (!write_word (svf, *p))			return 0;
 
 	/* Calculate length written thus far. */

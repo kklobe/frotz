@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "frotz.h"
@@ -73,7 +73,6 @@ static void print_long (unsigned long value, int base);
  * Initialise error reporting.
  *
  */
-
 void init_err (void)
 {
     int i;
@@ -84,6 +83,7 @@ void init_err (void)
         error_count[i] = 0;
 }
 
+
 /*
  * runtime_error
  *
@@ -93,7 +93,6 @@ void init_err (void)
  * errnum : Numeric code for error (1 to ERR_NUM_ERRORS)
  *
  */
-
 void runtime_error (int errnum)
 {
     int wasfirst;
@@ -131,8 +130,8 @@ void runtime_error (int errnum)
 	}
 	new_line ();
     }
-
 } /* report_error */
+
 
 /*
  * print_long
@@ -140,7 +139,6 @@ void runtime_error (int errnum)
  * Print an unsigned 32bit number in decimal or hex.
  *
  */
-
 static void print_long (unsigned long value, int base)
 {
     unsigned long i;

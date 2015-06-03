@@ -1,7 +1,7 @@
 /*
  * ux_init.c - Unix interface, initialisation
  *	Galen Hazelwood <galenh@micron.net>
- *	David Griffith <dgriffi@cs.csubak.edu>
+ *	David Griffith <dave@661.org>
  *
  * This file is part of Frotz.
  *
@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #define __UNIX_PORT_FILE
@@ -61,14 +61,14 @@ Syntax: frotz [options] story-file\n\
   -A   watch attribute testing  \t -p   plain ASCII output only\n\
   -b # background color         \t -P   alter piracy opcode\n\
   -c # context lines            \t -q   quiet (disable sound effects)\n\
-  -d   disable color            \t -Q   use old-style save format\n\
-  -e   enable sound             \t -r # right margin\n\
-  -f # foreground color         \t -s # random number seed value\n\
-  -F   Force color mode         \t -S # transcript width\n\
-  -h # screen height            \t -t   set Tandy bit\n\
-  -i   ignore fatal errors      \t -u # slots for multiple undo\n\
-  -l # left margin              \t -w # screen width\n\
-  -o   watch object movement    \t -x   expand abbreviations g/x/z"
+  -d   disable color            \t -r # right margin\n\
+  -e   enable sound             \t -s # random number seed value\n\
+  -f # foreground color         \t -S # transcript width\n\
+  -F   Force color mode         \t -t   set Tandy bit\n\
+  -h # screen height            \t -u # slots for multiple undo\n\
+  -i   ignore fatal errors      \t -w # screen width\n\
+  -l # left margin              \t -x   expand abbreviations g/x/z\n\
+  -o   watch object movement"
 
 /*
 char stripped_story_name[FILENAME_MAX+1];
@@ -200,12 +200,12 @@ void os_process_arguments (int argc, char *argv[])
     /* Parse the options */
 
     do {
-	c = getopt(argc, argv, "aAb:c:def:Fh:il:oOpPQqr:s:S:tu:w:xZ:");
+	c = getopt(argc, argv, "aAb:c:def:Fh:il:oOpPqr:s:S:tu:w:xZ:");
 	switch(c) {
 	  case 'a': f_setup.attribute_assignment = 1; break;
 	  case 'A': f_setup.attribute_testing = 1; break;
 
-	  case 'b': u_setup.background_color = atoi(optarg);
+	  case 'b': u_setup.background_color = getcolor(optarg);
 		u_setup.force_color = 1;
 		u_setup.disable_color = 0;
 		if ((u_setup.background_color < 2) ||
@@ -222,8 +222,6 @@ void os_process_arguments (int argc, char *argv[])
 			(u_setup.foreground_color > 9))
 			u_setup.foreground_color = -1;
 		    break;
-
-
 	  case 'F': u_setup.force_color = 1;
 		    u_setup.disable_color = 0;
 		    break;
@@ -235,7 +233,6 @@ void os_process_arguments (int argc, char *argv[])
 	  case 'p': u_setup.plain_ascii = 1; break;
 	  case 'P': f_setup.piracy = 1; break;
 	  case 'q': f_setup.sound = 0; break;
-	  case 'Q': f_setup.save_quetzal = 0; break;
 	  case 'r': f_setup.right_margin = atoi(optarg); break;
 	  case 's': u_setup.random_seed = atoi(optarg); break;
 	  case 'S': f_setup.script_cols = atoi(optarg); break;
@@ -622,6 +619,53 @@ FILE *os_load_story(void)
     return fp;
 }
 
+/*
+ * Seek into a storyfile, either a standalone file or the
+ * ZCODE chunk of a blorb file
+ */
+int os_storyfile_seek(FILE * fp, long offset, int whence)
+{
+    /* Is this a Blorb file containing Zcode? */
+    if (u_setup.exec_in_blorb)
+    {
+	switch (whence)
+	{
+	    case SEEK_END:
+		return fseek(fp, blorb_res.data.startpos + blorb_res.length + offset, SEEK_SET);
+		break;
+	    case SEEK_CUR:
+		return fseek(fp, offset, SEEK_CUR);
+		break;
+	    case SEEK_SET:
+	    default:
+		return fseek(fp, blorb_res.data.startpos + offset, SEEK_SET);
+		break;
+	}
+    }
+    else
+    {
+	return fseek(fp, offset, whence);
+    }
+
+}
+
+/*
+ * Tell the position in a storyfile, either a standalone file
+ * or the ZCODE chunk of a blorb file
+ */ 
+int os_storyfile_tell(FILE * fp)
+{
+    /* Is this a Blorb file containing Zcode? */
+    if (u_setup.exec_in_blorb)
+    {
+	return ftell(fp) - blorb_res.data.startpos;
+    }
+    else
+    {
+	return ftell(fp);
+    }
+
+}
 
 /*
  * pathopen
@@ -756,9 +800,6 @@ int getconfig(char *configfile)
 		}
 		else if (strcmp(varname, "sound") == 0) {
 			f_setup.sound = getbool(value);
-		}
-		else if (strcmp(varname, "quetzal") == 0) {
-			f_setup.save_quetzal = getbool(value);
 		}
 		else if (strcmp(varname, "tandy") == 0) {
 			u_setup.tandy_bit = getbool(value);
@@ -976,7 +1017,6 @@ void os_init_setup(void)
 	f_setup.undo_slots = MAX_UNDO_SLOTS;
 	f_setup.expand_abbreviations = 0;
 	f_setup.script_cols = 80;
-	f_setup.save_quetzal = 1;
 	f_setup.sound = 1;
 	f_setup.err_report_mode = ERR_DEFAULT_REPORT_MODE;
 

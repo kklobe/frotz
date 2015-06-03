@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "frotz.h"
@@ -33,16 +33,15 @@ static struct {
     zword total;
 } redirect[MAX_NESTING];
 
+
 /*
  * memory_open
  *
  * Begin output redirection to the memory of the Z-machine.
  *
  */
-
 void memory_open (zword table, zword xsize, bool buffering)
 {
-
     if (++depth < MAX_NESTING) {
 
 	if (!buffering)
@@ -67,13 +66,13 @@ void memory_open (zword table, zword xsize, bool buffering)
 
 }/* memory_open */
 
+
 /*
  * memory_new_line
  *
  * Redirect a newline to the memory of the Z-machine.
  *
  */
-
 void memory_new_line (void)
 {
     zword size;
@@ -98,13 +97,13 @@ void memory_new_line (void)
 
 }/* memory_new_line */
 
+
 /*
  * memory_word
  *
  * Redirect a string of characters to the memory of the Z-machine.
  *
  */
-
 void memory_word (const zchar *s)
 {
     zword size;
@@ -142,16 +141,15 @@ void memory_word (const zchar *s)
 
 }/* memory_word */
 
+
 /*
  * memory_close
  *
  * End of output redirection.
  *
  */
-
 void memory_close (void)
 {
-
     if (depth >= 0) {
 
 	if (redirect[depth].xsize != 0xffff)

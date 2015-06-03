@@ -15,14 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /*
  * This is an interpreter for Infocom V1 to V6 games. It also supports
- * the recently defined V7 and V8 games. Please report bugs to
- *
- *    s.jokisch@avu.de
+ * the recently defined V7 and V8 games.
  *
  */
 
@@ -117,24 +115,6 @@ bool enable_scripting = FALSE;
 bool enable_scrolling = FALSE;
 bool enable_buffering = FALSE;
 
-/* User options */
-
-/*
-int option_attribute_assignment = 0;
-int option_attribute_testing = 0;
-int option_context_lines = 0;
-int option_object_locating = 0;
-int option_object_movement = 0;
-int option_left_margin = 0;
-int option_right_margin = 0;
-int option_ignore_errors = 0;
-int option_piracy = 0;
-int option_undo_slots = MAX_UNDO_SLOTS;
-int option_expand_abbreviations = 0;
-int option_script_cols = 80;
-int option_save_quetzal = 1;
-*/
-
 int option_sound = 1;
 char *option_zcode_path;
 
@@ -143,19 +123,19 @@ char *option_zcode_path;
 
 long reserve_mem = 0;
 
+
 /*
  * z_piracy, branch if the story file is a legal copy.
  *
  *	no zargs used
  *
  */
-
 void z_piracy (void)
 {
-
     branch (!f_setup.piracy);
 
 }/* z_piracy */
+
 
 /*
  * main
@@ -163,10 +143,8 @@ void z_piracy (void)
  * Prepare and run the game.
  *
  */
-
 int cdecl main (int argc, char *argv[])
 {
-
     os_init_setup ();
 
     os_process_arguments (argc, argv);

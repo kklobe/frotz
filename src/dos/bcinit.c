@@ -24,17 +24,16 @@ static char information[] =
 "  -a   watch attribute setting  \t -o   watch object movement\n"
 "  -A   watch attribute testing  \t -O   watch object locating\n"
 "  -b # background colour        \t -p   alter piracy opcode\n"
-"  -B # reverse background colour\t -Q   use old-style save format\n"
-"  -c # context lines            \t -r # right margin\n"
-"  -d # display mode (see below) \t -s # random number seed value\n"
-"  -e # emphasis colour [mode 1] \t -S # transscript width\n"
-"  -f # foreground colour        \t -t   set Tandy bit\n"
-"  -F # reverse foreground colour\t -T   bold typing [modes 2+4+5]\n"
-"  -g # font [mode 5] (see below)\t -u # slots for multiple undo\n"
-"  -h # screen height            \t -w # screen width\n"
-"  -i   ignore runtime errors    \t -x   expand abbreviations g/x/z\n"
+"  -B # reverse background colour\t -r # right margin\n"
+"  -c # context lines            \t -s # random number seed value\n"
+"  -d # display mode (see below) \t -S # transscript width\n"
+"  -e # emphasis colour [mode 1] \t -t   set Tandy bit\n"
+"  -f # foreground colour        \t -T   bold typing [modes 2+4+5]\n"
+"  -F # reverse foreground colour\t -u # slots for multiple undo\n"
+"  -g # font [mode 5] (see below)\t -w # screen width\n"
+"  -h # screen height            \t -x   expand abbreviations g/x/z\n"
+"  -i   ignore runtime errors    \t -Z # error checking (see below)\n"
 "  -l # left margin"
-"              \t -Z # error checking (see below)"
 "\n"
 "Fonts are 0 (fixed), 1 (sans serif), 2 (comic), 3 (times), 4 (serif).\n"
 "Display modes are 0 (mono), 1 (text), 2 (CGA), 3 (MCGA), 4 (EGA), 5 (Amiga)."
@@ -105,11 +104,11 @@ void os_init_setup(void)
 	f_setup.undo_slots = MAX_UNDO_SLOTS;
 	f_setup.expand_abbreviations = 0;
 	f_setup.script_cols = 80;
-	f_setup.save_quetzal = 1;
 	f_setup.sound = 1;
 	f_setup.err_report_mode = ERR_DEFAULT_REPORT_MODE;
 
 }/* os_init_setup */
+
 
 /*
  * dectoi
@@ -118,7 +117,6 @@ void os_init_setup(void)
  * be NULL, but it must not be empty.
  *
  */
-
 int dectoi (const char *s)
 {
     int n = 0;
@@ -135,6 +133,7 @@ int dectoi (const char *s)
 
 }/* dectoi */
 
+
 /*
  * hextoi
  *
@@ -142,7 +141,6 @@ int dectoi (const char *s)
  * NULL, but it must not be empty.
  *
  */
-
 int hextoi (const char *s)
 {
     int n = 0;
@@ -161,6 +159,7 @@ int hextoi (const char *s)
     return n;
 
 }/* hextoi */
+
 
 /*
  * basename
@@ -190,7 +189,6 @@ char *basename(const char *path)
  * interrupt pointers and return to the previous video mode.
  *
  */
-
 static void cleanup (void)
 {
 
@@ -207,19 +205,20 @@ static void cleanup (void)
 
 }/* cleanup */
 
+
 /*
  * fast_exit
  *
  * Handler routine to be called when the crtl-break key is pressed.
  *
  */
-
 static void interrupt fast_exit ()
 {
 
     cleanup (); exit (EXIT_FAILURE);
 
 }/* fast_exit */
+
 
 /*
  * os_fatal
@@ -246,13 +245,13 @@ void os_fatal (const char *s, ...)
 
 }/* os_fatal */
 
+
 /*
  * parse_options
  *
  * Parse program options and set global flags accordingly.
  *
  */
-
 static void parse_options (int argc, char **argv)
 {
     int c;
@@ -261,7 +260,7 @@ static void parse_options (int argc, char **argv)
 
 	int num = 0;
 
-	c = getopt (argc, argv, "aAb:B:c:d:e:f:F:g:h:il:oOpQr:s:S:tTu:w:xZ:");
+	c = getopt (argc, argv, "aAb:B:c:d:e:f:F:g:h:il:oOpr:s:S:tTu:w:xZ:");
 
 	if (optarg != NULL)
 	    num = dectoi (optarg);
@@ -307,8 +306,6 @@ static void parse_options (int argc, char **argv)
 	    f_setup.object_locating = 1;
 	if (c == 'p')
 	    f_setup.piracy = 1;
-	if (c == 'Q')
-	    f_setup.save_quetzal = 0;
 	if (c == 'r')
 	    f_setup.right_margin = num;
 	if (c == 's')
@@ -333,6 +330,7 @@ static void parse_options (int argc, char **argv)
 
 }/* parse_options */
 
+
 /*
  * os_process_arguments
  *
@@ -355,7 +353,6 @@ static void parse_options (int argc, char **argv)
  * The global pointer "story_name" is set to the story file name.
  *
  */
-
 void os_process_arguments (int argc, char *argv[])
 {
     const char *p;
@@ -420,6 +417,7 @@ void os_process_arguments (int argc, char *argv[])
     }
 }/* os_process_arguments */
 
+
 /*
  * standard_palette
  *
@@ -427,7 +425,6 @@ void os_process_arguments (int argc, char *argv[])
  * use DAC registers #0 to #63.
  *
  */
-
 static void standard_palette (void)
 {
 
@@ -450,6 +447,7 @@ static void standard_palette (void)
 
 }/* standard_palette */
 
+
 /*
  * special_palette
  *
@@ -457,7 +455,6 @@ static void standard_palette (void)
  * registers #64 to #127.
  *
  */
-
 static void special_palette (void)
 {
 
@@ -479,6 +476,7 @@ static void special_palette (void)
     }
 
 }/* special_palette */
+
 
 /*
  * os_init_screen
@@ -505,7 +503,6 @@ static void special_palette (void)
  * should not be used for multiple undo and reserved for later use.
  *
  */
-
 void os_init_screen (void)
 {
     static byte zcolour[] = {
@@ -760,13 +757,13 @@ void os_init_screen (void)
 
 }/* os_init_screen */
 
+
 /*
  * os_reset_screen
  *
  * Reset the screen before the program stops.
  *
  */
-
 void os_reset_screen (void)
 {
 
@@ -779,6 +776,7 @@ void os_reset_screen (void)
 
 }/* os_reset_screen */
 
+
 /*
  * os_restart_game
  *
@@ -790,7 +788,6 @@ void os_reset_screen (void)
  *     RESTART_END - restart is complete
  *
  */
-
 void os_restart_game (int stage)
 {
     int x, y;
@@ -825,6 +822,7 @@ void os_restart_game (int stage)
 
 }/* os_restart_game */
 
+
 /*
  * os_random_seed
  *
@@ -832,10 +830,8 @@ void os_restart_game (int stage)
  * 32767, possibly by using the current system time.
  *
  */
-
 int os_random_seed (void)
 {
-
     if (user_random_seed == -1) {
 
 	/* Use the time of day as seed value */
@@ -850,7 +846,6 @@ int os_random_seed (void)
 }/* os_random_seed */
 
 
-
 /*
  * os_path_open
  *
@@ -859,7 +854,6 @@ int os_random_seed (void)
  * if it is defined, otherwise search INFOCOM_PATH.
  *
  */
-
 FILE *os_path_open (const char *name, const char *mode)
 {
     FILE *fp;
@@ -887,6 +881,7 @@ FILE *os_path_open (const char *name, const char *mode)
     return NULL;
 }/* os_path_open */
 
+
 /*
  * os_load_story
  *
@@ -899,7 +894,6 @@ FILE *os_path_open (const char *name, const char *mode)
  * defined, search INFOCOM_PATH.
  *
  */
-
 FILE *os_load_story(void)
 {
     FILE *fp;
@@ -913,6 +907,7 @@ FILE *os_load_story(void)
     }
     return fp;
 }
+
 
 int dos_init_blorb(void)
 {
@@ -949,3 +944,43 @@ int dos_init_blorb(void)
     return 0;
 }
 
+
+/*
+ * Seek into a storyfile, either a standalone file or the
+ * ZCODE chunk of a blorb file
+ */
+int os_storyfile_seek(FILE * fp, long offset, int whence)
+{
+    int retval;
+    /* Is this a Blorb file containing Zcode? */
+    if (exec_in_blorb) {
+	switch (whence) {
+	    case SEEK_END:
+		retval = fseek(fp, blorb_res.data.startpos + blorb_res.length + offset, SEEK_SET);
+		break;
+	    case SEEK_CUR:
+		retval = fseek(fp, offset, SEEK_CUR);
+		break;
+	    case SEEK_SET:
+	    default:
+		retval = fseek(fp, blorb_res.data.startpos + offset, SEEK_SET);
+		break;
+	}
+	return retval;
+    }
+    return fseek(fp, offset, whence);
+}
+
+
+/*
+ * Tell the position in a storyfile, either a standalone file
+ * or the ZCODE chunk of a blorb file
+ */
+int os_storyfile_tell(FILE * fp)
+{
+    /* Is this a Blorb file containing Zcode? */
+    if (exec_in_blorb)
+       return ftell(fp) - blorb_res.data.startpos;
+
+    return ftell(fp);
+}

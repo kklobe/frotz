@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #define __UNIX_PORT_FILE
@@ -80,7 +80,7 @@ static void sigterm_handler(int signal) {
   _exit(0);
 }
 
-static void sigint_handler(int signal) {
+static void oss_sigint_handler(int signal) {
   num_repeats = 1;
 }
 
@@ -141,7 +141,7 @@ static void play_sound(int volume, int repeats) {
   sigaddset(&sa.sa_mask, SIGTERM);
   sa.sa_flags = 0;
   sigaction(SIGTERM, &sa, NULL);
-  sa.sa_handler = sigint_handler;
+  sa.sa_handler = oss_sigint_handler;
   sigaction(SIGINT, &sa, NULL);
 
   for (num_repeats = repeats; num_repeats > 0;

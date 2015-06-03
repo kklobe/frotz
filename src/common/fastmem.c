@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /*
@@ -59,6 +59,8 @@ extern void script_close (void);
 
 extern FILE *os_path_open (const char *, const char *);
 extern FILE *os_load_story (void);
+extern int os_storyfile_seek (FILE * fp, long offset, int whence);
+extern int os_storyfile_tell (FILE * fp);
 
 extern zword save_quetzal (FILE *, FILE *);
 extern zword restore_quetzal (FILE *, FILE *);
@@ -102,13 +104,13 @@ static zbyte *undo_mem = NULL, *prev_zmp, *undo_diff;
 
 static int undo_count = 0;
 
+
 /*
  * get_header_extension
  *
  * Read a value from the header extension (former mouse table).
  *
  */
-
 zword get_header_extension (int entry)
 {
     zword addr;
@@ -124,13 +126,13 @@ zword get_header_extension (int entry)
 
 }/* get_header_extension */
 
+
 /*
  * set_header_extension
  *
  * Set an entry in the header extension (former mouse table).
  *
  */
-
 void set_header_extension (int entry, zword val)
 {
     zword addr;
@@ -143,13 +145,13 @@ void set_header_extension (int entry, zword val)
 
 }/* set_header_extension */
 
+
 /*
  * restart_header
  *
  * Set all header fields which hold information about the interpreter.
  *
  */
-
 void restart_header (void)
 {
     zword screen_x_size;
@@ -202,13 +204,13 @@ void restart_header (void)
 
 }/* restart_header */
 
+
 /*
  * init_memory
  *
  * Allocate memory and load the story file.
  *
  */
-
 void init_memory (void)
 {
     long size;
@@ -250,10 +252,6 @@ void init_memory (void)
 
     /* Open story file */
 
-/*
-    if ((story_fp = os_path_open(f_setup.story_file, "rb")) == NULL)
-	os_fatal ("Cannot open story file");
-*/
     if ((story_fp = os_load_story()) == NULL)
         os_fatal ("Cannot open story file");
 
@@ -327,9 +325,9 @@ void init_memory (void)
 
     } else {		/* some old games lack the file size entry */
 
-	fseek (story_fp, 0, SEEK_END);
-	story_size = ftell (story_fp);
-	fseek (story_fp, 64, SEEK_SET);
+	os_storyfile_seek (story_fp, 0, SEEK_END);
+	story_size = os_storyfile_tell (story_fp);
+	os_storyfile_seek (story_fp, 64, SEEK_SET);
 
     }
 
@@ -383,6 +381,7 @@ void init_memory (void)
 
 }/* init_memory */
 
+
 /*
  * init_undo
  *
@@ -391,7 +390,6 @@ void init_memory (void)
  * during the game, e.g. for loading sounds or pictures.
  *
  */
-
 void init_undo (void)
 {
     void far *reserved;
@@ -418,13 +416,13 @@ void init_undo (void)
 
 }/* init_undo */
 
+
 /*
  * free_undo
  *
  * Free count undo blocks from the beginning of the undo list.
  *
  */
-
 static void free_undo (int count)
 {
     undo_t *p;
@@ -445,13 +443,13 @@ static void free_undo (int count)
 	last_undo = NULL;
 }/* free_undo */
 
+
 /*
  * reset_memory
  *
  * Close the story file and deallocate memory.
  *
  */
-
 void reset_memory (void)
 {
     if (story_fp)
@@ -471,16 +469,15 @@ void reset_memory (void)
     zmp = NULL;
 }/* reset_memory */
 
+
 /*
  * storeb
  *
  * Write a byte value to the dynamic Z-machine memory.
  *
  */
-
 void storeb (zword addr, zbyte value)
 {
-
     if (addr >= h_dynamic_size)
 	runtime_error (ERR_STORE_RANGE);
 
@@ -505,20 +502,20 @@ void storeb (zword addr, zbyte value)
 
 }/* storeb */
 
+
 /*
  * storew
  *
  * Write a word value to the dynamic Z-machine memory.
  *
  */
-
 void storew (zword addr, zword value)
 {
-
     storeb ((zword) (addr + 0), hi (value));
     storeb ((zword) (addr + 1), lo (value));
 
 }/* storew */
+
 
 /*
  * z_restart, re-load dynamic area, clear the stack and set the PC.
@@ -526,7 +523,6 @@ void storew (zword addr, zword value)
  * 	no zargs used
  *
  */
-
 void z_restart (void)
 {
     static bool first_restart = TRUE;
@@ -539,7 +535,7 @@ void z_restart (void)
 
     if (!first_restart) {
 
-	fseek (story_fp, 0, SEEK_SET);
+	os_storyfile_seek (story_fp, 0, SEEK_SET);
 
 	if (fread (zmp, 1, h_dynamic_size, story_fp) != h_dynamic_size)
 	    os_fatal ("Story file read error");
@@ -563,6 +559,7 @@ void z_restart (void)
 
 }/* z_restart */
 
+
 /*
  * get_default_name
  *
@@ -570,10 +567,8 @@ void z_restart (void)
  * copy it to a string.
  *
  */
-
 static void get_default_name (char *default_name, zword addr)
 {
-
     if (addr != 0) {
 
 	zbyte len;
@@ -605,6 +600,7 @@ static void get_default_name (char *default_name, zword addr)
 
 }/* get_default_name */
 
+
 /*
  * z_restore, restore [a part of] a Z-machine state from disk
  *
@@ -613,7 +609,6 @@ static void get_default_name (char *default_name, zword addr)
  *	zargs[2] = address of suggested file name
  *
  */
-
 void z_restore (void)
 {
     char new_name[MAX_FILE_NAME + 1];
@@ -665,60 +660,7 @@ void z_restore (void)
 	if ((gfp = fopen (new_name, "rb")) == NULL)
 	    goto finished;
 
-	if (f_setup.save_quetzal) {
-	    success = restore_quetzal (gfp, story_fp);
-
-	} else {
-	    /* Load game file */
-
-	    release = (unsigned) fgetc (gfp) << 8;
-	    release |= fgetc (gfp);
-
-	    (void) fgetc (gfp);
-	    (void) fgetc (gfp);
-
-	    /* Check the release number */
-
-	    if (release == h_release) {
-
-		pc = (long) fgetc (gfp) << 16;
-		pc |= (unsigned) fgetc (gfp) << 8;
-		pc |= fgetc (gfp);
-
-		SET_PC (pc);
-
-		sp = stack + (fgetc (gfp) << 8);
-		sp += fgetc (gfp);
-		fp = stack + (fgetc (gfp) << 8);
-		fp += fgetc (gfp);
-
-		for (i = (int) (sp - stack); i < STACK_SIZE; i++) {
-		    stack[i] = (unsigned) fgetc (gfp) << 8;
-		    stack[i] |= fgetc (gfp);
-		}
-
-		fseek (story_fp, 0, SEEK_SET);
-
-		for (addr = 0; addr < h_dynamic_size; addr++) {
-		    int skip = fgetc (gfp);
-		    for (i = 0; i < skip; i++)
-			zmp[addr++] = fgetc (story_fp);
-		    zmp[addr] = fgetc (gfp);
-		    (void) fgetc (story_fp);
-		}
-
-		/* Check for errors */
-
-		if (ferror (gfp) || ferror (story_fp) || addr != h_dynamic_size)
-		    success = -1;
-		else
-
-		    /* Success */
-
-		    success = 2;
-
-	    } else print_string ("Invalid save file\n");
-	}
+	success = restore_quetzal (gfp, story_fp);
 
 	if ((short) success >= 0) {
 
@@ -763,6 +705,7 @@ finished:
 
 }/* z_restore */
 
+
 /*
  * mem_diff
  *
@@ -773,7 +716,6 @@ finished:
  * Returns the number of bytes copied to diff.
  *
  */
-
 static long mem_diff (zbyte *a, zbyte *b, zword mem_size, zbyte *diff)
 {
     unsigned size = mem_size;
@@ -808,13 +750,13 @@ static long mem_diff (zbyte *a, zbyte *b, zword mem_size, zbyte *diff)
     return p - diff;
 }/* mem_diff */
 
+
 /*
  * mem_undiff
  *
  * Applies a quetzal-like diff to dest
  *
  */
-
 static void mem_undiff (zbyte *diff, long diff_length, zbyte *dest)
 {
     zbyte c;
@@ -844,13 +786,13 @@ static void mem_undiff (zbyte *diff, long diff_length, zbyte *dest)
     }
 }/* mem_undiff */
 
+
 /*
  * restore_undo
  *
  * This function does the dirty work for z_restore_undo.
  *
  */
-
 int restore_undo (void)
 {
     long pc = curr_undo->pc;
@@ -882,19 +824,19 @@ int restore_undo (void)
 
 }/* restore_undo */
 
+
 /*
  * z_restore_undo, restore a Z-machine state from memory.
  *
  *	no zargs used
  *
  */
-
 void z_restore_undo (void)
 {
-
     store ((zword) restore_undo ());
 
 }/* z_restore_undo */
+
 
 /*
  * z_save, save [a part of] the Z-machine state to disk.
@@ -904,7 +846,6 @@ void z_restore_undo (void)
  *	zargs[2] = address of suggested file name
  *
  */
-
 void z_save (void)
 {
     char new_name[MAX_FILE_NAME + 1];
@@ -957,44 +898,7 @@ void z_save (void)
 	if ((gfp = fopen (new_name, "wb")) == NULL)
 	    goto finished;
 
-	if (f_setup.save_quetzal) {
-	    success = save_quetzal (gfp, story_fp);
-	} else {
-	    /* Write game file */
-
-	    fputc ((int) hi (h_release), gfp);
-	    fputc ((int) lo (h_release), gfp);
-	    fputc ((int) hi (h_checksum), gfp);
-	    fputc ((int) lo (h_checksum), gfp);
-
-	    GET_PC (pc);
-
-	    fputc ((int) (pc >> 16) & 0xff, gfp);
-	    fputc ((int) (pc >> 8) & 0xff, gfp);
-	    fputc ((int) (pc) & 0xff, gfp);
-
-	    nsp = (int) (sp - stack);
-	    nfp = (int) (fp - stack);
-
-	    fputc ((int) hi (nsp), gfp);
-	    fputc ((int) lo (nsp), gfp);
-	    fputc ((int) hi (nfp), gfp);
-	    fputc ((int) lo (nfp), gfp);
-
-	    for (i = nsp; i < STACK_SIZE; i++) {
-		fputc ((int) hi (stack[i]), gfp);
-		fputc ((int) lo (stack[i]), gfp);
-	    }
-
-	    fseek (story_fp, 0, SEEK_SET);
-
-	    for (addr = 0, skip = 0; addr < h_dynamic_size; addr++)
-		if (zmp[addr] != fgetc (story_fp) || skip == 255 || addr + 1 == h_dynamic_size) {
-		    fputc (skip, gfp);
-		    fputc (zmp[addr], gfp);
-		    skip = 0;
-		} else skip++;
-	}
+	success = save_quetzal (gfp, story_fp);
 
 	/* Close game file and check for errors */
 
@@ -1006,7 +910,6 @@ void z_save (void)
 	/* Success */
 
 	success = 1;
-
     }
 
 finished:
@@ -1018,13 +921,13 @@ finished:
 
 }/* z_save */
 
+
 /*
  * save_undo
  *
  * This function does the dirty work for z_save_undo.
  *
  */
-
 int save_undo (void)
 {
     long diff_size;
@@ -1084,19 +987,19 @@ int save_undo (void)
 
 }/* save_undo */
 
+
 /*
  * z_save_undo, save the current Z-machine state for a future undo.
  *
  *	no zargs used
  *
  */
-
 void z_save_undo (void)
 {
-
     store ((zword) save_undo ());
 
 }/* z_save_undo */
+
 
 /*
  * z_verify, check the story file integrity.
@@ -1104,7 +1007,6 @@ void z_save_undo (void)
  *	no zargs used
  *
  */
-
 void z_verify (void)
 {
     zword checksum = 0;
@@ -1112,7 +1014,8 @@ void z_verify (void)
 
     /* Sum all bytes in story file except header bytes */
 
-    fseek (story_fp, 64, SEEK_SET);
+    os_storyfile_seek (story_fp, 64, SEEK_SET);
+
 
     for (i = 64; i < story_size; i++)
 	checksum += fgetc (story_fp);

@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <string.h>
@@ -36,7 +36,6 @@ static zchar prev_c = 0;
  * Copy the contents of the text buffer to the output streams.
  *
  */
-
 void flush_buffer (void)
 {
     static bool locked = FALSE;
@@ -77,7 +76,6 @@ void flush_buffer (void)
  * High level output function.
  *
  */
-
 void print_char (zchar c)
 {
     static bool flag = FALSE;
@@ -96,8 +94,6 @@ void print_char (zchar c)
 	    /* Flush the buffer before a whitespace or after a hyphen */
 
 	    if (c == ' ' || c == ZC_INDENT || c == ZC_GAP || (prev_c == '-' && c != '-'))
-
-
 		flush_buffer ();
 
 	    /* Set the flag if this is part one of a style or font change */
@@ -122,16 +118,15 @@ void print_char (zchar c)
 
 }/* print_char */
 
+
 /*
  * new_line
  *
  * High level newline function.
  *
  */
-
 void new_line (void)
 {
-
     flush_buffer (); stream_new_line ();
 
 }/* new_line */
@@ -143,11 +138,9 @@ void new_line (void)
  * Initialize buffer variables.
  *
  */
-
 void init_buffer(void)
 {
     memset(buffer, 0, sizeof (zchar) * TEXT_BUFFER_SIZE);
     bufpos = 0;
     prev_c = 0;
 }
-

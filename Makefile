@@ -48,7 +48,7 @@ COLOR_DEFS = -DCOLOR_SUPPORT
 # Define your sound device
 # This should probably be a command-line/config-file option.
 #
-#SOUND_DEV = /dev/dsp
+SOUND_DEV = /dev/dsp
 #SOUND_DEV = /dev/sound
 #SOUND_DEV = /dev/audio
 
@@ -91,7 +91,7 @@ CURSES = -lcurses
 #MEMMOVE_DEF = -DNO_MEMMOVE
 
 # Uncomment this if for some wacky reason you want to compile Unix Frotz
-# under Cygwin under Windoze.  This sort of thing is not reccomended.
+# under Cygwin under Windoze.  This sort of thing is not recomended.
 #
 #EXTENSION = .exe
 
@@ -108,7 +108,7 @@ SDL_LIBS = -ljpeg -lpng -lz -lSDL -lSDL_mixer
 
 SRCDIR = src
 
-VERSION = 2.44pre
+VERSION = 2.44
 
 NAME = frotz
 BINNAME = $(NAME)
@@ -185,7 +185,7 @@ BLORB_OBJECT =  $(BLORB_DIR)/blorblib.o
 TARGETS = $(COMMON_TARGET) $(CURSES_TARGET) $(BLORB_TARGET)
 
 OPT_DEFS = -DCONFIG_DIR="\"$(CONFIG_DIR)\"" $(CURSES_DEF) \
-	-DVERSION="\"$(VERSION)\""
+	-DVERSION="\"$(VERSION)\"" -DSOUND_DEV="\"$(SOUND_DEV)\""
 
 CURSES_DEFS = $(OPT_DEFS) $(COLOR_DEFS) $(SOUND_DEFS) $(SOUNDCARD) \
 	$(MEMMOVE_DEF)
@@ -324,13 +324,14 @@ dist: distclean
 
 clean:
 	rm -f $(SRCDIR)/*.h $(SRCDIR)/*.a
-	find . -name *.o -exec rm -f {} \;
-	find . -name *.O -exec rm -f {} \;
+	find . -iname *.o -exec rm -f {} \;
+	find . -iname *.obj -exec rm -f {} \;
 
 distclean: clean
 	rm -f $(BINNAME)$(EXTENSION) d$(BINNAME)$(EXTENSION) s$(BINNAME)
-	rm -f *.EXE *.BAK *.LIB
-	rm -f *.exe *.bak *.lib
+	find . -iname *.exe -exec rm -f {} \;
+	find . -iname *.bak -exec rm -f {} \;
+	find . -iname *.lib -exec rm -f {} \;
 	rm -f *core $(SRCDIR)/*core
 	-rm -rf $(distdir)
 	-rm -f $(distdir).tar $(distdir).tar.gz
