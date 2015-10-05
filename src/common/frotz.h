@@ -55,6 +55,24 @@ typedef unsigned short zchar;
 typedef unsigned char zchar;
 
 enum story {
+    ZORK1,
+    ZORK2,
+    ZORK3,
+    ZORK1G,
+    MINIZORK,
+    SAMPLER1,
+    SAMPLER2,
+    ENCHANTER,
+    SORCERER,
+    SPELLBREAKER,
+    PLANETFALL,
+    STATIONFALL,
+    BALLYHOO,
+    BORDER_ZONE,
+    AMFV,
+    HHGG,
+    LGOP,
+    SUSPECT,
     BEYOND_ZORK,
     SHERLOCK,
     ZORK_ZERO,
@@ -284,6 +302,9 @@ typedef struct {
 #define ZC_HKEY_HELP 0x15
 #define ZC_HKEY_MAX 0x15
 #define ZC_ESCAPE 0x1b
+#define ZC_DEL_WORD 0x1c
+#define ZC_WORD_RIGHT 0x1d
+#define ZC_WORD_LEFT 0x1e
 #define ZC_ASCII_MIN 0x20
 #define ZC_ASCII_MAX 0x7e
 #define ZC_BAD 0x7f

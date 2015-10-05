@@ -84,6 +84,12 @@ CURSES = -lcurses
 #
 #CURSES_DEF = -DUSE_NCURSES_H
 
+# Uncomment this if you're compiling Unix Frotz on a machine that lacks 
+# the strrchr() libc library call.  If you don't know what this means,
+# leave it alone.
+#
+#STRRCHR_DEF = -DNO_STRRCHR
+
 # Uncomment this if you're compiling Unix Frotz on a machine that lacks
 # the memmove(3) system call.  If you don't know what this means, leave it
 # alone.
@@ -188,9 +194,7 @@ OPT_DEFS = -DCONFIG_DIR="\"$(CONFIG_DIR)\"" $(CURSES_DEF) \
 	-DVERSION="\"$(VERSION)\"" -DSOUND_DEV="\"$(SOUND_DEV)\""
 
 CURSES_DEFS = $(OPT_DEFS) $(COLOR_DEFS) $(SOUND_DEFS) $(SOUNDCARD) \
-	$(MEMMOVE_DEF)
-
-FLAGS = $(OPTS) $(CURSES_DEFS) $(INCL)
+	$(MEMMOVE_DEF) $(STRRCHR_DEF)
 
 
 $(NAME): $(NAME)-curses
@@ -224,10 +228,10 @@ $(DUMB_OBJECT): %.o: %.c
 	$(CC) $(OPTS) -o $@ -c $<
 
 $(CURSES_OBJECT): %.o: %.c
-	$(CC) $(OPTS) $(CURSES_DEFS) -o $@ -c $<
+	$(CC) $(OPTS) $(CURSES_DEFS) $(INCL) -o $@ -c $<
 
 $(SDL_OBJECT): %.o: %.c
-	$(CC) $(OPTS) $(SDL_DEFS) -o $@ -c $<
+	$(CC) $(OPTS) $(SDL_DEFS) $(INCL) -o $@ -c $<
 
 
 # If you're going to make this target manually, you'd better know which
